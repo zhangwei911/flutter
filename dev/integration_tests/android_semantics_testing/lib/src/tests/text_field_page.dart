@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'text_field_constants.dart';
 
@@ -37,7 +38,7 @@ class _TextFieldPageState extends State<TextFieldPage> {
           TextField(
             key: passwordTextFieldKey,
             controller: _passwordController,
-            obscureText: true,
+            obscureTextBehavior: ObscureTextBehavior.delayed,
           ),
         ],
       ),
