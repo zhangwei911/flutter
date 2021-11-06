@@ -14,6 +14,7 @@ import 'dart:ui' show
   hashValues;
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:vector_math/vector_math_64.dart' show Matrix4;
 
 import '../../services.dart' show Clipboard;
@@ -457,7 +458,7 @@ class TextInputConfiguration {
   const TextInputConfiguration({
     this.inputType = TextInputType.text,
     this.readOnly = false,
-    this.obscureText = false,
+    this.obscureTextBehavior = ObscureTextBehavior.none,
     this.autocorrect = true,
     SmartDashesType? smartDashesType,
     SmartQuotesType? smartQuotesType,
@@ -470,9 +471,9 @@ class TextInputConfiguration {
     this.enableIMEPersonalizedLearning = true,
     this.enableDeltaModel = false,
   }) : assert(inputType != null),
-       assert(obscureText != null),
-       smartDashesType = smartDashesType ?? (obscureText ? SmartDashesType.disabled : SmartDashesType.enabled),
-       smartQuotesType = smartQuotesType ?? (obscureText ? SmartQuotesType.disabled : SmartQuotesType.enabled),
+       assert(obscureTextBehavior != null),
+       smartDashesType = smartDashesType ?? (obscureTextBehavior != ObscureTextBehavior.none ? SmartDashesType.disabled : SmartDashesType.enabled),
+       smartQuotesType = smartQuotesType ?? (obscureTextBehavior != ObscureTextBehavior.none ? SmartQuotesType.disabled : SmartQuotesType.enabled),
        assert(autocorrect != null),
        assert(enableSuggestions != null),
        assert(keyboardAppearance != null),
@@ -489,10 +490,19 @@ class TextInputConfiguration {
   /// Defaults to false.
   final bool readOnly;
 
-  /// Whether to hide the text being edited (e.g., for passwords).
+  /// {@template flutter.widgets.editableText.obscureTextBehavior}
+  /// How characters in the field are obscured, if at all.
   ///
-  /// Defaults to false.
-  final bool obscureText;
+  /// For example, a password field may want to obscure the entered
+  /// text so it's not readable.
+  ///
+  /// When this is set to [ObscureTextBehavior.all] or
+  /// [ObscureTextBehavior.delayed], the characters in the field
+  /// are replaced by [obscuringCharacter].
+  ///
+  /// Defaults to [ObscureTextBehavior.none]. Cannot be null.
+  /// {@endtemplate}
+  final ObscureTextBehavior obscureTextBehavior;
 
   /// Whether to enable autocorrection.
   ///
@@ -521,9 +531,9 @@ class TextInputConfiguration {
   /// automatically replaced with one en dash, and three consecutive hyphens
   /// will become one em dash.
   ///
-  /// Defaults to true, unless [obscureText] is true, when it defaults to false.
-  /// This is to avoid the problem where password fields receive autoformatted
-  /// characters.
+  /// Defaults to true, unless [obscureTextBehavior] is not none, when it
+  /// defaults to false. This is to avoid the problem where password fields
+  /// receive autoformatted characters.
   ///
   /// See also:
   ///
@@ -546,9 +556,9 @@ class TextInputConfiguration {
   /// character will be automatically replaced by a left or right double quote
   /// depending on its position in a word.
   ///
-  /// Defaults to true, unless [obscureText] is true, when it defaults to false.
-  /// This is to avoid the problem where password fields receive autoformatted
-  /// characters.
+  /// Defaults to true, unless [obscureTextBehavior] is not none, when it
+  /// defaults to false. This is to avoid the problem where password fields
+  /// receive autoformatted characters.
   ///
   /// See also:
   ///
@@ -614,7 +624,7 @@ class TextInputConfiguration {
   TextInputConfiguration copyWith({
     TextInputType? inputType,
     bool? readOnly,
-    bool? obscureText,
+    ObscureTextBehavior? obscureTextBehavior,
     bool? autocorrect,
     SmartDashesType? smartDashesType,
     SmartQuotesType? smartQuotesType,
@@ -630,7 +640,7 @@ class TextInputConfiguration {
     return TextInputConfiguration(
       inputType: inputType ?? this.inputType,
       readOnly: readOnly ?? this.readOnly,
-      obscureText: obscureText ?? this.obscureText,
+      obscureTextBehavior: obscureTextBehavior ?? this.obscureTextBehavior,
       autocorrect: autocorrect ?? this.autocorrect,
       smartDashesType: smartDashesType ?? this.smartDashesType,
       smartQuotesType: smartQuotesType ?? this.smartQuotesType,
@@ -675,7 +685,7 @@ class TextInputConfiguration {
     return <String, dynamic>{
       'inputType': inputType.toJson(),
       'readOnly': readOnly,
-      'obscureText': obscureText,
+      'obscureTextBehavior': obscureTextBehavior,
       'autocorrect': autocorrect,
       'smartDashesType': smartDashesType.index.toString(),
       'smartQuotesType': smartQuotesType.index.toString(),
