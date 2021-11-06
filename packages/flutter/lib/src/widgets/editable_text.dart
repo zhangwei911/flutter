@@ -36,7 +36,7 @@ import 'text_selection.dart';
 import 'ticker_provider.dart';
 import 'widget_span.dart';
 
-export 'package:flutter/services.dart' show SelectionChangedCause, TextEditingValue, TextSelection, TextInputType, SmartQuotesType, SmartDashesType;
+export 'package:flutter/services.dart' show SelectionChangedCause, TextEditingValue, TextSelection, TextInputType, SmartQuotesType, SmartDashesType, ObscureTextBehavior;
 
 /// Signature for the callback that reports when the user changes the selection
 /// (including the cursor location).
@@ -444,7 +444,7 @@ class EditableText extends StatefulWidget {
   /// The text cursor is not shown if [showCursor] is false or if [showCursor]
   /// is null (the default) and [readOnly] is true.
   ///
-  /// The [controller], [focusNode], [obscureText], [autocorrect], [autofocus],
+  /// The [controller], [focusNode], [obscureTextBehavior], [autocorrect], [autofocus],
   /// [showSelectionHandles], [enableInteractiveSelection], [forceLine],
   /// [style], [cursorColor], [cursorOpacityAnimates],[backgroundCursorColor],
   /// [enableSuggestions], [paintCursorAboveText], [selectionHeightStyle],
@@ -457,7 +457,7 @@ class EditableText extends StatefulWidget {
     required this.focusNode,
     this.readOnly = false,
     this.obscuringCharacter = '•',
-    this.obscureText = false,
+    this.obscureTextBehavior = ObscureTextBehavior.none,
     this.autocorrect = true,
     SmartDashesType? smartDashesType,
     SmartQuotesType? smartQuotesType,
@@ -523,10 +523,10 @@ class EditableText extends StatefulWidget {
   }) : assert(controller != null),
        assert(focusNode != null),
        assert(obscuringCharacter != null && obscuringCharacter.length == 1),
-       assert(obscureText != null),
+       assert(obscureTextBehavior != null),
        assert(autocorrect != null),
-       smartDashesType = smartDashesType ?? (obscureText ? SmartDashesType.disabled : SmartDashesType.enabled),
-       smartQuotesType = smartQuotesType ?? (obscureText ? SmartQuotesType.disabled : SmartQuotesType.enabled),
+       smartDashesType = smartDashesType ?? (obscureTextBehavior != ObscureTextBehavior.none ? SmartDashesType.disabled : SmartDashesType.enabled),
+       smartQuotesType = smartQuotesType ?? (obscureTextBehavior != ObscureTextBehavior.none ? SmartQuotesType.disabled : SmartQuotesType.enabled),
        assert(enableSuggestions != null),
        assert(showSelectionHandles != null),
        assert(enableInteractiveSelection != null),
@@ -551,7 +551,7 @@ class EditableText extends StatefulWidget {
          !expands || (maxLines == null && minLines == null),
          'minLines and maxLines must be null when expands is true.',
        ),
-       assert(!obscureText || maxLines == 1, 'Obscured fields cannot be multiline.'),
+       assert(obscureTextBehavior == ObscureTextBehavior.none || maxLines == 1, 'Obscured fields cannot be multiline.'),
        assert(autofocus != null),
        assert(rendererIgnoresPointer != null),
        assert(scrollPadding != null),
@@ -577,7 +577,7 @@ class EditableText extends StatefulWidget {
   final FocusNode focusNode;
 
   /// {@template flutter.widgets.editableText.obscuringCharacter}
-  /// Character used for obscuring text if [obscureText] is true.
+  /// Character used for obscuring text if [obscureTextBehavior] is not none.
   ///
   /// Must be only a single character.
   ///
@@ -585,15 +585,19 @@ class EditableText extends StatefulWidget {
   /// {@endtemplate}
   final String obscuringCharacter;
 
-  /// {@template flutter.widgets.editableText.obscureText}
-  /// Whether to hide the text being edited (e.g., for passwords).
+  /// {@template flutter.widgets.editableText.obscureTextBehavior}
+  /// How characters in the field are obscured, if at all.
   ///
-  /// When this is set to true, all the characters in the text field are
-  /// replaced by [obscuringCharacter].
+  /// For example, a password field may want to obscure the entered
+  /// text so it's not readable.
   ///
-  /// Defaults to false. Cannot be null.
+  /// When this is set to [ObscureTextBehavior.all] or
+  /// [ObscureTextBehavior.delayed], the characters in the field
+  /// are replaced by [obscuringCharacter].
+  ///
+  /// Defaults to [ObscureTextBehavior.none]. Cannot be null.
   /// {@endtemplate}
-  final bool obscureText;
+  final ObscureTextBehavior obscureTextBehavior;
 
   /// {@macro flutter.dart:ui.textHeightBehavior}
   final TextHeightBehavior? textHeightBehavior;
@@ -1487,10 +1491,10 @@ class EditableText extends StatefulWidget {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<TextEditingController>('controller', controller));
     properties.add(DiagnosticsProperty<FocusNode>('focusNode', focusNode));
-    properties.add(DiagnosticsProperty<bool>('obscureText', obscureText, defaultValue: false));
+    properties.add(DiagnosticsProperty<ObscureTextBehavior>('obscureTextBehavior', obscureTextBehavior, defaultValue: ObscureTextBehavior.none));
     properties.add(DiagnosticsProperty<bool>('autocorrect', autocorrect, defaultValue: true));
-    properties.add(EnumProperty<SmartDashesType>('smartDashesType', smartDashesType, defaultValue: obscureText ? SmartDashesType.disabled : SmartDashesType.enabled));
-    properties.add(EnumProperty<SmartQuotesType>('smartQuotesType', smartQuotesType, defaultValue: obscureText ? SmartQuotesType.disabled : SmartQuotesType.enabled));
+    properties.add(EnumProperty<SmartDashesType>('smartDashesType', smartDashesType, defaultValue: obscureTextBehavior != ObscureTextBehavior.none ? SmartDashesType.disabled : SmartDashesType.enabled));
+    properties.add(EnumProperty<SmartQuotesType>('smartQuotesType', smartQuotesType, defaultValue: obscureTextBehavior != ObscureTextBehavior.none ? SmartQuotesType.disabled : SmartQuotesType.enabled));
     properties.add(DiagnosticsProperty<bool>('enableSuggestions', enableSuggestions, defaultValue: true));
     style.debugFillProperties(properties);
     properties.add(EnumProperty<TextAlign>('textAlign', textAlign, defaultValue: null));
@@ -1874,7 +1878,7 @@ class EditableTextState extends State<EditableText> with AutomaticKeepAliveClien
       _currentPromptRectRange = null;
 
       if (_hasInputConnection) {
-        if (widget.obscureText && value.text.length == _value.text.length + 1) {
+        if (widget.obscureTextBehavior != ObscureTextBehavior.none && value.text.length == _value.text.length + 1) {
           _obscureShowCharTicksPending = _kObscureShowLatestCharCursorTicks;
           _obscureLatestCharIndex = _value.selection.baseOffset;
         }
@@ -2800,7 +2804,7 @@ class EditableTextState extends State<EditableText> with AutomaticKeepAliveClien
     return TextInputConfiguration(
       inputType: widget.keyboardType,
       readOnly: widget.readOnly,
-      obscureText: widget.obscureText,
+      obscureTextBehavior: widget.obscureTextBehavior,
       autocorrect: widget.autocorrect,
       smartDashesType: widget.smartDashesType,
       smartQuotesType: widget.smartQuotesType,
@@ -2851,7 +2855,7 @@ class EditableTextState extends State<EditableText> with AutomaticKeepAliveClien
   // --------------------------- Text Editing Actions ---------------------------
 
   _TextBoundary _characterBoundary(DirectionalTextEditingIntent intent) {
-    final _TextBoundary atomicTextBoundary = widget.obscureText ? _CodeUnitBoundary(_value) : _CharacterBoundary(_value);
+    final _TextBoundary atomicTextBoundary = widget.obscureTextBehavior != ObscureTextBehavior.none ? _CodeUnitBoundary(_value) : _CharacterBoundary(_value);
     return _CollapsedSelectionBoundary(atomicTextBoundary, intent.forward);
   }
 
@@ -2859,7 +2863,7 @@ class EditableTextState extends State<EditableText> with AutomaticKeepAliveClien
     final _TextBoundary atomicTextBoundary;
     final _TextBoundary boundary;
 
-    if (widget.obscureText) {
+    if (widget.obscureTextBehavior != ObscureTextBehavior.none) {
       atomicTextBoundary = _CodeUnitBoundary(_value);
       boundary = _DocumentBoundary(_value);
     } else {
@@ -2881,7 +2885,7 @@ class EditableTextState extends State<EditableText> with AutomaticKeepAliveClien
     final _TextBoundary atomicTextBoundary;
     final _TextBoundary boundary;
 
-    if (widget.obscureText) {
+    if (widget.obscureTextBehavior != ObscureTextBehavior.none) {
       atomicTextBoundary = _CodeUnitBoundary(_value);
       boundary = _DocumentBoundary(_value);
     } else {
@@ -3010,7 +3014,7 @@ class EditableTextState extends State<EditableText> with AutomaticKeepAliveClien
                     textHeightBehavior: widget.textHeightBehavior ?? DefaultTextHeightBehavior.of(context),
                     textWidthBasis: widget.textWidthBasis,
                     obscuringCharacter: widget.obscuringCharacter,
-                    obscureText: widget.obscureText,
+                    obscureTextBehavior: widget.obscureTextBehavior,
                     autocorrect: widget.autocorrect,
                     smartDashesType: widget.smartDashesType,
                     smartQuotesType: widget.smartQuotesType,
@@ -3046,13 +3050,14 @@ class EditableTextState extends State<EditableText> with AutomaticKeepAliveClien
   /// By default makes text in composing range appear as underlined.
   /// Descendants can override this method to customize appearance of text.
   TextSpan buildTextSpan() {
-    if (widget.obscureText) {
+    if (widget.obscureTextBehavior != ObscureTextBehavior.none) {
       String text = _value.text;
       text = widget.obscuringCharacter * text.length;
       // Reveal the latest character in an obscured field only on mobile.
-      if (defaultTargetPlatform == TargetPlatform.android ||
+      if ((defaultTargetPlatform == TargetPlatform.android ||
           defaultTargetPlatform == TargetPlatform.iOS ||
-          defaultTargetPlatform == TargetPlatform.fuchsia) {
+          defaultTargetPlatform == TargetPlatform.fuchsia) &&
+		widget.obscureTextBehavior == ObscureTextBehavior.delayed) {
         final int? o =
             _obscureShowCharTicksPending > 0 ? _obscureLatestCharIndex : null;
         if (o != null && o >= 0 && o < text.length)
@@ -3094,7 +3099,7 @@ class _Editable extends MultiChildRenderObjectWidget {
     required this.textDirection,
     this.locale,
     required this.obscuringCharacter,
-    required this.obscureText,
+    required this.obscureTextBehavior,
     required this.autocorrect,
     required this.smartDashesType,
     required this.smartQuotesType,
@@ -3152,7 +3157,7 @@ class _Editable extends MultiChildRenderObjectWidget {
   final TextDirection textDirection;
   final Locale? locale;
   final String obscuringCharacter;
-  final bool obscureText;
+  final ObscureTextBehavior obscureTextBehavior;
   final TextHeightBehavior? textHeightBehavior;
   final TextWidthBasis textWidthBasis;
   final bool autocorrect;
@@ -3202,7 +3207,7 @@ class _Editable extends MultiChildRenderObjectWidget {
       onCaretChanged: onCaretChanged,
       ignorePointer: rendererIgnoresPointer,
       obscuringCharacter: obscuringCharacter,
-      obscureText: obscureText,
+      obscureTextBehavior: obscureTextBehavior,
       textHeightBehavior: textHeightBehavior,
       textWidthBasis: textWidthBasis,
       cursorWidth: cursorWidth,
@@ -3248,7 +3253,7 @@ class _Editable extends MultiChildRenderObjectWidget {
       ..textHeightBehavior = textHeightBehavior
       ..textWidthBasis = textWidthBasis
       ..obscuringCharacter = obscuringCharacter
-      ..obscureText = obscureText
+      ..obscureTextBehavior = obscureTextBehavior
       ..cursorWidth = cursorWidth
       ..cursorHeight = cursorHeight
       ..cursorRadius = cursorRadius
@@ -3546,7 +3551,7 @@ class _DeleteTextAction<T extends DirectionalTextEditingIntent> extends ContextA
     final TextRange selection = value.selection;
     assert(selection.isValid);
     assert(!selection.isCollapsed);
-    final _TextBoundary atomicBoundary = state.widget.obscureText
+    final _TextBoundary atomicBoundary = state.widget.obscureTextBehavior != ObscureTextBehavior.none
       ? _CodeUnitBoundary(value)
       : _CharacterBoundary(value);
 
