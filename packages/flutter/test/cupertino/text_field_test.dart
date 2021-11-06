@@ -2069,7 +2069,7 @@ void main() {
           home: Center(
             child: CupertinoTextField(
               controller: controller,
-              obscureText: true,
+              obscureTextBehavior: ObscureTextBehavior.delayed,
               enableInteractiveSelection: false,
             ),
           ),
@@ -2117,7 +2117,7 @@ void main() {
           home: Center(
             child: CupertinoTextField(
               controller: controller,
-              obscureText: true,
+              obscureTextBehavior: ObscureTextBehavior.delayed,
             ),
           ),
         ),
@@ -2163,7 +2163,7 @@ void main() {
         home: Center(
           child: CupertinoTextField(
             controller: controller,
-            obscureText: true,
+              obscureTextBehavior: ObscureTextBehavior.delayed,
           ),
         ),
       ),
