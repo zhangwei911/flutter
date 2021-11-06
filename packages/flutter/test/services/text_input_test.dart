@@ -220,7 +220,7 @@ void main() {
       const TextInputConfiguration configuration = TextInputConfiguration();
       expect(configuration.inputType, TextInputType.text);
       expect(configuration.readOnly, false);
-      expect(configuration.obscureText, false);
+      expect(configuration.obscureTextBehavior, ObscureTextBehavior.none);
       expect(configuration.enableDeltaModel, false);
       expect(configuration.autocorrect, true);
       expect(configuration.actionLabel, null);
@@ -231,7 +231,7 @@ void main() {
     test('text serializes to JSON', () async {
       const TextInputConfiguration configuration = TextInputConfiguration(
         readOnly: true,
-        obscureText: true,
+        obscureTextBehavior: ObscureTextBehavior.delayed,
         autocorrect: false,
         actionLabel: 'xyzzy',
       );
@@ -242,7 +242,7 @@ void main() {
         'decimal': null,
       });
       expect(json['readOnly'], true);
-      expect(json['obscureText'], true);
+      expect(json['obscureTextBehavior'], ObscureTextBehavior.delayed);
       expect(json['autocorrect'], false);
       expect(json['actionLabel'], 'xyzzy');
     });
@@ -250,7 +250,7 @@ void main() {
     test('number serializes to JSON', () async {
       const TextInputConfiguration configuration = TextInputConfiguration(
         inputType: TextInputType.numberWithOptions(decimal: true),
-        obscureText: true,
+        obscureTextBehavior: ObscureTextBehavior.delayed,
         autocorrect: false,
         actionLabel: 'xyzzy',
       );
@@ -261,7 +261,7 @@ void main() {
         'decimal': true,
       });
       expect(json['readOnly'], false);
-      expect(json['obscureText'], true);
+      expect(json['obscureTextBehavior'], ObscureTextBehavior.delayed);
       expect(json['autocorrect'], false);
       expect(json['actionLabel'], 'xyzzy');
     });
