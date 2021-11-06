@@ -49,13 +49,13 @@ class PasswordField extends StatefulWidget {
 }
 
 class _PasswordFieldState extends State<PasswordField> {
-  bool _obscureText = true;
+  bool _obscureTextBehavior = ObscureTextBehavior.delayed;
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       key: widget.fieldKey,
-      obscureText: _obscureText,
+      obscureTextBehavior: _obscureTextBehavior,
       maxLength: 8,
       onSaved: widget.onSaved,
       validator: widget.validator,
@@ -273,7 +273,7 @@ class TextFormFieldDemoState extends State<TextFormFieldDemo> {
                       labelText: 'Re-type password',
                     ),
                     maxLength: 8,
-                    obscureText: true,
+                    obscureTextBehavior: ObscureTextBehavior.delayed,
                     validator: _validatePassword,
                   ),
                   const SizedBox(height: 24.0),
