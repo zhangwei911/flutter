@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'text_input.dart';
 
 /// A collection of commonly used autofill hint strings on different platforms.
@@ -810,7 +811,7 @@ class _AutofillScopeTextInputConfiguration extends TextInputConfiguration {
   }) : assert(allConfigurations != null),
        assert(currentClientConfiguration != null),
        super(inputType: currentClientConfiguration.inputType,
-         obscureText: currentClientConfiguration.obscureText,
+         obscureTextBehavior: currentClientConfiguration.obscureTextBehavior,
          autocorrect: currentClientConfiguration.autocorrect,
          smartDashesType: currentClientConfiguration.smartDashesType,
          smartQuotesType: currentClientConfiguration.smartQuotesType,
