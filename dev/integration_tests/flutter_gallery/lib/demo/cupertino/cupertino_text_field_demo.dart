@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 
 class CupertinoTextFieldDemo extends StatefulWidget {
   const CupertinoTextFieldDemo({Key? key}) : super(key: key);
@@ -125,7 +126,7 @@ class _CupertinoTextFieldDemoState extends State<CupertinoTextFieldDemo> {
       clearButtonMode: OverlayVisibilityMode.editing,
       keyboardType: TextInputType.number,
       autocorrect: false,
-      obscureText: true,
+      obscureTextBehavior: ObscureTextBehavior.delayed,
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(width: 0.0, color: CupertinoColors.inactiveGray)),
       ),
