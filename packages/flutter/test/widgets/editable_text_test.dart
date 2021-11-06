@@ -180,7 +180,7 @@ void main() {
     final EditableText editableText =
         tester.firstWidget(find.byType(EditableText));
     expect(editableText.maxLines, equals(1));
-    expect(editableText.obscureText, isFalse);
+    expect(editableText.obscureTextBehavior, ObscureTextBehavior.none);
     expect(editableText.autocorrect, isTrue);
     expect(editableText.enableSuggestions, isTrue);
     expect(editableText.enableIMEPersonalizedLearning, isTrue);
@@ -664,7 +664,7 @@ void main() {
       expect(tester.testTextInput.setClientArgs!['smartQuotesType'], smartQuotesType.index.toString());
     });
 
-    testWidgets('default to true when obscureText is false', (WidgetTester tester) async {
+    testWidgets('default to true when obscureTextBehavior is ObscureTextBehavior.none', (WidgetTester tester) async {
       final TextEditingController controller = TextEditingController();
       await tester.pumpWidget(
         MediaQuery(
@@ -693,7 +693,7 @@ void main() {
       expect(tester.testTextInput.setClientArgs!['smartQuotesType'], '1');
     });
 
-    testWidgets('default to false when obscureText is true', (WidgetTester tester) async {
+    testWidgets('default to false when obscureText is not none', (WidgetTester tester) async {
       final TextEditingController controller = TextEditingController();
       await tester.pumpWidget(
         MediaQuery(
@@ -709,7 +709,7 @@ void main() {
                 focusNode: focusNode,
                 style: textStyle,
                 cursorColor: cursorColor,
-                obscureText: true,
+                obscureTextBehavior: ObscureTextBehavior.none,
               ),
             ),
           ),
@@ -2951,7 +2951,7 @@ void main() {
     await tester.pumpWidget(MaterialApp(
       home: EditableText(
         backgroundCursorColor: Colors.grey,
-        obscureText: true,
+        obscureTextBehavior: ObscureTextBehavior.delayed,
         controller: controller,
         focusNode: focusNode,
         style: textStyle,
@@ -3056,7 +3056,7 @@ void main() {
       home: EditableText(
         backgroundCursorColor: Colors.grey,
         controller: controller,
-        obscureText: true,
+        obscureTextBehavior: ObscureTextBehavior.delayed,
         focusNode: focusNode,
         style: textStyle,
         cursorColor: cursorColor,
@@ -3120,7 +3120,7 @@ void main() {
         backgroundCursorColor: Colors.grey,
         controller: controller,
         obscuringCharacter: obscuringCharacter,
-        obscureText: true,
+        obscureTextBehavior: ObscureTextBehavior.delayed,
         focusNode: focusNode,
         style: textStyle,
         cursorColor: cursorColor,
@@ -5969,7 +5969,7 @@ void main() {
           controller: controller,
           cursorColor: cursorColor,
           focusNode: focusNode,
-          obscureText: true,
+          obscureTextBehavior: ObscureTextBehavior.delayed,
           style: textStyle,
         );
       },
@@ -5983,7 +5983,7 @@ void main() {
           cursorColor: cursorColor,
           focusNode: focusNode,
           maxLines: 2,
-          obscureText: true,
+          obscureTextBehavior: ObscureTextBehavior.delayed,
           style: textStyle,
         );
       },
